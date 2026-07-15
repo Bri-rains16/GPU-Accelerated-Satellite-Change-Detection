@@ -1,0 +1,9 @@
+# High Performance Computing Internship Project Dependencies
+numpy
+opencv-python
+torch
+torchvision
+PyYAML
+matplotlib
+scikit-learn
+tqdm

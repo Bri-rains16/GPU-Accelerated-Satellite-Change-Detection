@@ -1,0 +1,22 @@
+project:
+  title: "GPU-Accelerated Satellite Image Change Detection"
+  author: "Bristi Biswas"
+  institution: "Jaypee Institute of Information Technology"
+
+paths:
+  dataset_dir: "./datasets/xBD_subset"
+  output_dir: "./outputs"
+  models_dir: "./models/saved"
+  results_dir: "./results"
+
+execution:
+  mode: "sequential" # Options: sequential, openmp, cuda, deep_learning
+  use_gpu_if_available: true
+  num_workers: 4 # For PyTorch DataLoader and OpenMP threads
+
+dataset:
+  disaster_types: ["flood", "earthquake"]
+  patch_size: 256
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15

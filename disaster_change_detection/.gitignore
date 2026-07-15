@@ -1,0 +1,28 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Data and Outputs (Keep directory structures, ignore contents)
+datasets/*
+!datasets/.gitkeep
+data/*
+!data/.gitkeep
+outputs/*
+!outputs/.gitkeep
+results/*
+!results/.gitkeep
+models/saved/*
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.cu.o
+
+# Python caches
+__pycache__/
+*.py[cod]
