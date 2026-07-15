@@ -2,6 +2,8 @@
 #include <cuda_runtime.h>
 #include "change_detector.h"
 
+using namespace std;
+
 // ==========================================
 // CUDA KERNEL
 // Computes Absolute Difference and Thresholding on the GPU
@@ -72,7 +74,7 @@ void run_change_detection_cuda(const unsigned char* img1,
 
 // Stub main function for standalone compilation/testing on HPC
 int main(int argc, char** argv) {
-    std::cout << "CUDA Change Detection Module Compiled Successfully." << std::endl;
-    std::cout << "Ready for Python Integration on HPC Cluster." << std::endl;
+    cout<< "CUDA Change Detection Module Compiled Successfully." << endl;
+    cout<< "Ready for Python Integration on HPC Cluster." << endl;
     return 0;
 }
