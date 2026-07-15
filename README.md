@@ -1,6 +1,6 @@
 # GPU-Accelerated Satellite Image Change Detection for Disaster Assessment Using OpenMP and CUDA
 
-**Author:** Bristi Biswas (Enrollment: 23104028)
+**Author:** Bristi Biswas (Enrollment: 23104028) & Kapil Sharma (Enrollment: 23104036)
 **Institution:** Jaypee Institute of Information Technology, Sector 62, Noida
 **Program:** High Performance Computing (HPC) Internship Program 2026
 
