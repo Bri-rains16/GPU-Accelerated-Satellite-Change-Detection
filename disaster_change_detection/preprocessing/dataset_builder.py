@@ -56,8 +56,11 @@ def process_dataset():
     logger = setup_logger("HPC_Project")
     config = load_config()
 
-    raw_dir = "../" + config['paths']['raw_dir']
-    output_dir = "../" + config['paths']['dataset_dir']
+    raw_dir_config = config['paths'].get('raw_dir', './data/raw_xbd')
+    raw_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", raw_dir_config))
+    
+    output_dir_config = config['paths']['dataset_dir']
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", output_dir_config))
     patch_size = config['dataset']['patch_size']
     
     # Safely get stride from config, default to patch_size if missing (no overlap)
