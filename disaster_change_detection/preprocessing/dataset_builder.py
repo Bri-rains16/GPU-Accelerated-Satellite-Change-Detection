@@ -13,13 +13,13 @@ import cv2
 
 # 3. Finally, import your project-specific modules
 from sklearn.model_selection import train_test_split
-from image_utils import load_image, normalize_image, extract_patches, save_patch
+# Note: Removed 'extract_patches' as we are implementing custom stride logic below
+from image_utils import load_image, normalize_image, save_patch 
 from utils.logger import setup_logger
 
 def load_config(config_path="../config/default.yaml"):
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
-
 
 def create_dataset_directories(base_dir):
     """Creates train/val/test directories for pre and post disaster images."""
@@ -30,8 +30,7 @@ def create_dataset_directories(base_dir):
         for t in types:
             os.makedirs(os.path.join(base_dir, split, t), exist_ok=True)
 
-
-def generate_mock_data(raw_dir, num_pairs=10):
+def generate_mock_data(raw_dir, num_pairs=10, disaster_type="volcano"):
     """Generates dummy images to test the pipeline if raw data isn't present."""
     logger = logging.getLogger("HPC_Project")
     logger.info("Generating mock raw data for pipeline testing...")
@@ -48,31 +47,38 @@ def generate_mock_data(raw_dir, num_pairs=10):
         # Add a "disaster" change block in the post image
         post_img[400:600, 400:600] = [255, 0, 0]
 
-        import cv2
-        cv2.imwrite(os.path.join(pre_dir, f"flood_{i:04d}_pre.png"), pre_img)
-        cv2.imwrite(os.path.join(
-            post_dir, f"flood_{i:04d}_post.png"), post_img)
-
+        cv2.imwrite(os.path.join(pre_dir, f"{disaster_type}_{i:04d}_pre_disaster.png"), pre_img)
+        cv2.imwrite(os.path.join(post_dir, f"{disaster_type}_{i:04d}_post_disaster.png"), post_img)
 
 def process_dataset():
     logger = setup_logger("HPC_Project")
     config = load_config()
 
-    raw_dir = "../data/raw_xbd"
+    raw_dir = "../" + config['paths']['raw_dir']
     output_dir = "../" + config['paths']['dataset_dir']
     patch_size = config['dataset']['patch_size']
+    
+    # Safely get stride from config, default to patch_size if missing (no overlap)
+    stride = config['dataset'].get('stride', patch_size) 
+    disaster_types = config['dataset'].get('disaster_types', ['volcano', 'hurricane'])
 
     # Check if raw data exists; if not, generate mock data for testing
     if not os.path.exists(os.path.join(raw_dir, "pre_disaster")):
-        generate_mock_data(raw_dir)
+        generate_mock_data(raw_dir, disaster_type=disaster_types[0])
 
     create_dataset_directories(output_dir)
 
-    # Gather image paths
-    pre_images = sorted(
-        glob.glob(os.path.join(raw_dir, "pre_disaster", "*.png")))
-    post_images = sorted(
-        glob.glob(os.path.join(raw_dir, "post_disaster", "*.png")))
+    # Gather image paths dynamically based on disaster types in YAML
+    pre_images = []
+    post_images = []
+    
+    logger.info(f"Scanning for disaster types: {disaster_types}")
+    for d_type in disaster_types:
+        pre_images.extend(glob.glob(os.path.join(raw_dir, "pre_disaster", f"*{d_type}*.png")))
+        post_images.extend(glob.glob(os.path.join(raw_dir, "post_disaster", f"*{d_type}*.png")))
+
+    pre_images = sorted(pre_images)
+    post_images = sorted(post_images)
 
     if len(pre_images) != len(post_images) or len(pre_images) == 0:
         logger.error("Mismatch or missing image pairs in raw directory.")
@@ -104,22 +110,27 @@ def process_dataset():
             pre_img = normalize_image(load_image(pre_path))
             post_img = normalize_image(load_image(post_path))
 
-            # Extract patches
-            pre_patches = extract_patches(pre_img, patch_size)
-            post_patches = extract_patches(post_img, patch_size)
+            img_height, img_width = pre_img.shape[:2]
 
-            # Save patches
-            for idx, (p_pre, p_post) in enumerate(zip(pre_patches, post_patches)):
-                base_name = f"patch_{patch_counter:06d}_{idx:03d}"
-                save_patch(p_pre, os.path.join(
-                    output_dir, split_name, "pre", f"{base_name}_pre.png"))
-                save_patch(p_post, os.path.join(
-                    output_dir, split_name, "post", f"{base_name}_post.png"))
+            # HPC Data Scaling: Overlapping Stride Patch Extraction
+            for y in range(0, img_height - patch_size + 1, stride):
+                for x in range(0, img_width - patch_size + 1, stride):
+                    
+                    p_pre = pre_img[y:y+patch_size, x:x+patch_size]
+                    p_post = post_img[y:y+patch_size, x:x+patch_size]
+                    
+                    base_name = f"patch_{patch_counter:06d}"
+                    
+                    save_patch(p_pre, os.path.join(
+                        output_dir, split_name, "pre", f"{base_name}_pre.png"))
+                    save_patch(p_post, os.path.join(
+                        output_dir, split_name, "post", f"{base_name}_post.png"))
+                    
+                    patch_counter += 1
 
-            patch_counter += 1
-
-    logger.info(f"Dataset preparation complete. Saved patches to {output_dir}")
-
+    logger.info(f"Dataset preparation complete.")
+    logger.info(f"Total overlapping patches generated for HPC training: {patch_counter}")
+    logger.info(f"Saved patches to {output_dir}")
 
 if __name__ == "__main__":
     process_dataset()
