@@ -95,13 +95,13 @@ def filter_and_extract(archive_path, output_dir):
                 filename = os.path.basename(member.filename)
                 
                 # Exclusively png images for volcano/hurricane pre/post disaster
-                if filename.endswith('.png') and pattern.search(filename):
-                    if 'pre_disaster' in filename:
+                if pattern.search(filename):
+                    if filename.endswith('_pre_disaster.png'):
                         target_path = os.path.join(pre_dir, filename)
                         with open(target_path, 'wb') as f:
                             f.write(zip_ref.read(member))
                         extracted_count += 1
-                    elif 'post_disaster' in filename:
+                    elif filename.endswith('_post_disaster.png'):
                         target_path = os.path.join(post_dir, filename)
                         with open(target_path, 'wb') as f:
                             f.write(zip_ref.read(member))
@@ -115,15 +115,15 @@ def filter_and_extract(archive_path, output_dir):
                     continue
                 filename = os.path.basename(member.name)
                 
-                if filename.endswith('.png') and pattern.search(filename):
-                    if 'pre_disaster' in filename:
+                if pattern.search(filename):
+                    if filename.endswith('_pre_disaster.png'):
                         target_path = os.path.join(pre_dir, filename)
                         f_in = tar_ref.extractfile(member)
                         if f_in:
                             with open(target_path, 'wb') as f_out:
                                 f_out.write(f_in.read())
                             extracted_count += 1
-                    elif 'post_disaster' in filename:
+                    elif filename.endswith('_post_disaster.png'):
                         target_path = os.path.join(post_dir, filename)
                         f_in = tar_ref.extractfile(member)
                         if f_in:
