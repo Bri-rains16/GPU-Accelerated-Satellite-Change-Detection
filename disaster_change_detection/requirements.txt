@@ -7,3 +7,4 @@ PyYAML
 matplotlib
 scikit-learn
 tqdm
+pandas
