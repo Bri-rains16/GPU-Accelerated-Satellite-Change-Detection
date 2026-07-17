@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -O3 -fopenmp -std=c++17
-LDFLAGS = `pkg-config --cflags --libs opencv4`
+LDFLAGS = `pkg-config --cflags --libs opencv5`
 
 TARGET = omp_preprocessing
 SRC = omp_preprocessing.cpp
