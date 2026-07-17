@@ -1,22 +1,25 @@
 project:
   title: "GPU-Accelerated Satellite Image Change Detection"
-  author: "Bristi Biswas"
+  author: "Bristi Biswas & [Insert Teammate's Name]" 
   institution: "Jaypee Institute of Information Technology"
 
 paths:
-  dataset_dir: "./datasets/xBD_subset"
+  dataset_dir: "./datasets/xBD_full" # Renamed to reflect the scaled-up dataset
   output_dir: "./outputs"
   models_dir: "./models/saved"
   results_dir: "./results"
 
 execution:
-  mode: "sequential" # Options: sequential, openmp, cuda, deep_learning
+  mode: "deep_learning" 
   use_gpu_if_available: true
-  num_workers: 4 # For PyTorch DataLoader and OpenMP threads
+  num_workers: 8     # Scaled up to utilize RU HPC multi-core nodes
+  batch_size: 64     # Added to keep the A100 GPUs fully fed with data
+  num_epochs: 50     # Added for a full, accurate training cycle on the cluster
 
 dataset:
-  disaster_types: ["flood", "earthquake"]
+  disaster_types: ["volcano", "hurricane"] # Updated to your newly chosen targets
   patch_size: 256
+  stride: 128        # Added for overlapping patch extraction (4x data scaling)
   train_split: 0.7
   val_split: 0.15
   test_split: 0.15
