@@ -28,7 +28,7 @@ METHOD 1: Kaggle API (Recommended for Automated Downloads)
 2. Secure the file permissions (Linux/macOS/RU HPC):
    chmod 600 ~/.kaggle/kaggle.json
 3. Run this script:
-   python fetch_xbd.py --method kaggle --dataset robikscube/xbd-dataset
+   python fetch_xbd.py --method kaggle --dataset qianlanzz/xbd-dataset
 
 METHOD 2: Manual Download (For xView2 Website / Pre-downloaded Archives)
 1. Download the tarballs/zips.
@@ -168,10 +168,10 @@ def verify_pairs(output_dir):
 def main():
     parser = argparse.ArgumentParser(description="Fetch and filter xBD dataset for volcano and hurricane events.")
     parser.add_argument("--method", choices=["kaggle", "local"], default="kaggle", help="Download method")
-    parser.add_argument("--dataset", default="robikscube/xbd-dataset", help="Kaggle dataset slug")
+    parser.add_argument("--dataset", default="qianlanzz/xbd-dataset", help="Kaggle dataset slug")
     parser.add_argument("--archive", help="Path to local archive (if method=local)")
-    parser.add_argument("--output-dir", default="data/raw_xbd", help="Directory to save extracted files")
-    parser.add_argument("--download-dir", default="data/downloads", help="Directory to save raw downloads")
+    parser.add_argument("--output-dir", default="datasets/raw_xbd", help="Directory to save extracted files")
+    parser.add_argument("--download-dir", default="datasets/downloads", help="Directory to save raw downloads")
     parser.add_argument("--info", action="store_true", help="Print auth instructions")
     
     args = parser.parse_args()
