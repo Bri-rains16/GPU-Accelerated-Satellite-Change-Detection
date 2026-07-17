@@ -12,7 +12,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.siamese_net import SiameseCNN
 from utils.logger import setup_logger
 
-def load_config(config_path="../config/default.yaml"):
+def load_config(config_path=None):
+    if config_path is None:
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config", "default.yaml"))
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
 
@@ -33,10 +35,11 @@ def run_inference():
     logger.info(f"Phase 7: Starting AI Inference on device: {device}")
 
     # 2. Setup Paths
-    test_pre_dir = os.path.join("..", config['paths']['dataset_dir'], "test", "pre")
-    test_post_dir = os.path.join("..", config['paths']['dataset_dir'], "test", "post")
-    model_path = os.path.join("..", config['paths']['models_dir'], "best_siamese_model.pth")
-    output_dir = os.path.join("..", config['paths']['output_dir'], "dl_inference")
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    test_pre_dir = os.path.abspath(os.path.join(project_root, config['paths']['dataset_dir'], "test", "pre"))
+    test_post_dir = os.path.abspath(os.path.join(project_root, config['paths']['dataset_dir'], "test", "post"))
+    model_path = os.path.abspath(os.path.join(project_root, config['paths']['models_dir'], "best_siamese_model.pth"))
+    output_dir = os.path.abspath(os.path.join(project_root, config['paths']['output_dir'], "dl_inference"))
     
     os.makedirs(output_dir, exist_ok=True)
 
