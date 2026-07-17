@@ -77,8 +77,9 @@ def run_inference():
             pre_tensor = torch.from_numpy(img_pre.astype(np.float32) / 255.0).permute(2, 0, 1).unsqueeze(0).to(device)
             post_tensor = torch.from_numpy(img_post.astype(np.float32) / 255.0).permute(2, 0, 1).unsqueeze(0).to(device)
             
-            # Forward Pass (Predict)
-            output_prob = model(pre_tensor, post_tensor)
+            # Forward Pass (Predict raw logits)
+            logits = model(pre_tensor, post_tensor)
+            output_prob = torch.sigmoid(logits)
             
             # Convert probability tensor back to a numpy image
             prob_map = output_prob.squeeze().cpu().numpy()

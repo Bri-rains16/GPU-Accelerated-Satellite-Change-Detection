@@ -48,6 +48,6 @@ class SiameseCNN(nn.Module):
         d1 = self.decoder(combined)
         d2 = self.upconv(d1)
         
-        # Output probability map (0 to 1)
+        # Output logit map (safe for BCEWithLogitsLoss / Autocast)
         logits = self.final_conv(d2)
-        return torch.sigmoid(logits)
+        return logits

@@ -34,7 +34,7 @@ def train_model():
         return
 
     model = SiameseCNN().to(device)
-    criterion = nn.BCELoss() # Binary Cross Entropy for pixel-wise classification
+    criterion = nn.BCEWithLogitsLoss() # Numerically stable Binary Cross Entropy with Logits
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
     # 3. Mixed Precision Scaler (Only active if using CUDA)
