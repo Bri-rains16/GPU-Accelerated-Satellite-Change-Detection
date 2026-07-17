@@ -17,7 +17,9 @@ from sklearn.model_selection import train_test_split
 from image_utils import load_image, normalize_image, save_patch 
 from utils.logger import setup_logger
 
-def load_config(config_path="../config/default.yaml"):
+def load_config(config_path=None):
+    if config_path is None:
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config", "default.yaml"))
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
 

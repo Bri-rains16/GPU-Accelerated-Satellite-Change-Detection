@@ -39,7 +39,8 @@ class ChangeDetectionDataset(Dataset):
         return pre_tensor, post_tensor, mask_tensor
 
 def get_dataloaders(config):
-    dataset_dir = os.path.join("..", config['paths']['dataset_dir'])
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    dataset_dir = os.path.abspath(os.path.join(project_root, config['paths']['dataset_dir']))
     
     train_dataset = ChangeDetectionDataset(dataset_dir, split='train')
     val_dataset = ChangeDetectionDataset(dataset_dir, split='val')

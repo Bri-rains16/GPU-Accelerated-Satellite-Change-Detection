@@ -6,6 +6,11 @@
 
 echo "Initializing Ramanujan Universe HPC Pipeline..."
 
+# Move to submission directory (for PBS batch jobs)
+# if [ -n "$PBS_O_WORKDIR" ]; then
+#     cd "$PBS_O_WORKDIR"
+# fi
+
 # 1. Load the required HPC Modules (These commands may vary slightly based on RU's specific module names)
 # module load python/3.10
 # module load gcc/11.2.0    # For OpenMP
