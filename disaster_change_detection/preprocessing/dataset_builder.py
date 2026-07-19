@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # 2. Then import standard libraries
 import glob
 import yaml
+import time
 import numpy as np
 import logging
 import cv2
@@ -107,8 +108,11 @@ def process_dataset():
     }
 
     patch_counter = 0
+    total_start = time.time()
+
     for split_name, (pre_list, post_list) in splits.items():
-        logger.info(f"Processing {split_name} split...")
+        split_start = time.time()
+        logger.info(f"Processing {split_name} split ({len(pre_list)} image pairs)...")
         for pre_path, post_path in zip(pre_list, post_list):
 
             # Load and normalize
@@ -133,9 +137,19 @@ def process_dataset():
                     
                     patch_counter += 1
 
-    logger.info(f"Dataset preparation complete.")
-    logger.info(f"Total overlapping patches generated for HPC training: {patch_counter}")
-    logger.info(f"Saved patches to {output_dir}")
+        split_elapsed = time.time() - split_start
+        logger.info(f"  {split_name} split done: {len(pre_list)} images -> {patch_counter} patches so far | Time: {split_elapsed:.2f}s")
+
+    total_elapsed = time.time() - total_start
+    logger.info(f"")
+    logger.info(f"======= Dataset Preparation Summary =======")
+    logger.info(f"Total raw image pairs processed : {len(pre_images)}")
+    logger.info(f"Total 256x256 patches generated : {patch_counter}")
+    logger.info(f"Patch size / Stride             : {patch_size}px / {stride}px")
+    logger.info(f"Total patch extraction time     : {total_elapsed:.2f} seconds ({total_elapsed/60:.2f} minutes)")
+    logger.info(f"Throughput                      : {len(pre_images)/total_elapsed:.2f} images/sec")
+    logger.info(f"Saved patches to                : {output_dir}")
+    logger.info(f"===========================================")
 
 if __name__ == "__main__":
     process_dataset()

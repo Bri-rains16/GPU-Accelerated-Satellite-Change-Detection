@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import yaml
 import torch
 import torch.nn as nn
@@ -44,9 +45,12 @@ def train_model():
     best_val_loss = float('inf')
     models_dir = os.path.join("..", config['paths']['models_dir'])
     os.makedirs(models_dir, exist_ok=True)
+    total_train_start = time.time()
+    epoch_times = []
 
     # 4. Training Loop
     for epoch in range(num_epochs):
+        epoch_start = time.time()
         model.train()
         running_loss = 0.0
         
@@ -81,7 +85,9 @@ def train_model():
                 val_loss += loss.item()
                 
         avg_val_loss = val_loss / len(val_loader)
-        logger.info(f"--- Epoch {epoch+1} Summary: Avg Train Loss: {running_loss/len(train_loader):.4f}, Avg Val Loss: {avg_val_loss:.4f} ---")
+        epoch_elapsed = time.time() - epoch_start
+        epoch_times.append(epoch_elapsed)
+        logger.info(f"--- Epoch {epoch+1} Summary: Avg Train Loss: {running_loss/len(train_loader):.4f}, Avg Val Loss: {avg_val_loss:.4f}, Epoch Time: {epoch_elapsed:.2f}s ---")
         
         # Save Checkpoint
         if avg_val_loss < best_val_loss:
@@ -90,6 +96,18 @@ def train_model():
             torch.save(model.state_dict(), checkpoint_path)
             logger.info(f"Saved new best model to {checkpoint_path}")
 
+    total_elapsed = time.time() - total_train_start
+    logger.info(f"")
+    logger.info(f"======= Training Summary =======")
+    logger.info(f"Device used              : {device} ({torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'})")
+    logger.info(f"Total epochs             : {num_epochs}")
+    logger.info(f"Total training patches   : {len(train_loader.dataset)}")
+    logger.info(f"Total validation patches : {len(val_loader.dataset)}")
+    logger.info(f"Batch size               : {train_loader.batch_size}")
+    logger.info(f"Total training time      : {total_elapsed:.2f} seconds ({total_elapsed/60:.2f} minutes)")
+    logger.info(f"Average time per epoch   : {sum(epoch_times)/len(epoch_times):.2f} seconds")
+    logger.info(f"Best validation loss     : {best_val_loss:.4f}")
+    logger.info(f"================================")
     logger.info("Deep Learning Training Phase Complete.")
 
 if __name__ == "__main__":
