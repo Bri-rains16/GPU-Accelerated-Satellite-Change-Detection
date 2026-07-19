@@ -11,8 +11,9 @@ def calculate_accuracy_metrics():
     logger = setup_logger("HPC_Project")
     logger.info("Starting Phase 8: Quantitative Change Accuracy Evaluation...")
 
-    seq_dir = "../outputs/sequential"
-    dl_dir = "../outputs/dl_inference"
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    seq_dir = os.path.abspath(os.path.join(project_root, "outputs", "sequential"))
+    dl_dir = os.path.abspath(os.path.join(project_root, "outputs", "dl_inference"))
     
     seq_maps = sorted(glob.glob(os.path.join(seq_dir, "*_map.png")))
     dl_maps = sorted(glob.glob(os.path.join(dl_dir, "*_dl_map.png")))
