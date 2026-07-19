@@ -45,10 +45,26 @@ def get_dataloaders(config):
     train_dataset = ChangeDetectionDataset(dataset_dir, split='train')
     val_dataset = ChangeDetectionDataset(dataset_dir, split='val')
     
-    # Multi-worker parallel data loading
-    num_workers = config['execution'].get('num_workers', 0) 
+    # Multi-worker parallel data loading with GPU-optimized prefetching
+    num_workers = config['execution'].get('num_workers', 0)
+    batch_size = config['execution'].get('batch_size', 8)
+
+    # pin_memory=True: locks CPU RAM pages so CUDA DMA transfers are faster (no copy step)
+    # prefetch_factor=2: each worker pre-loads 2 batches ahead so GPU never waits for data
+    # persistent_workers=True: keeps worker processes alive between epochs (avoids respawn overhead)
+    use_pin_memory = torch.cuda.is_available()
+
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True,
+        num_workers=num_workers, pin_memory=use_pin_memory,
+        prefetch_factor=2 if num_workers > 0 else None,
+        persistent_workers=(num_workers > 0)
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=False,
+        num_workers=num_workers, pin_memory=use_pin_memory,
+        prefetch_factor=2 if num_workers > 0 else None,
+        persistent_workers=(num_workers > 0)
+    )
     
-    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=8, shuffle=False, num_workers=num_workers)
-    
-    return train_loader, val_loader
+    return train_loader, val_loader
