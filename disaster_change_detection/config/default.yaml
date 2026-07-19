@@ -4,7 +4,9 @@ project:
   institution: "Jaypee Institute of Information Technology"
 
 paths:
-  dataset_dir: "./datasets/xBD_full" # Renamed to reflect the scaled-up dataset
+  raw_dir: "./datasets/testdataset_raw" #temporary
+  dataset_dir: "./datasets/testdataset" #temporary
+  # dataset_dir: "./datasets/xBD_full" # Renamed to reflect the scaled-up dataset
   output_dir: "./outputs"
   models_dir: "./models/saved"
   results_dir: "./results"
