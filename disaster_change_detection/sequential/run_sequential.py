@@ -16,7 +16,9 @@ from sequential.change_detector import (
 )
 from utils.logger import setup_logger
 
-def load_config(config_path="../config/default.yaml"):
+def load_config(config_path=None):
+    if config_path is None:
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config", "default.yaml"))
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
 
@@ -27,9 +29,10 @@ def run_sequential_pipeline():
     config = load_config()
     
     # Define paths based on config
-    test_pre_dir = os.path.join("..", config['paths']['dataset_dir'], "test", "pre")
-    test_post_dir = os.path.join("..", config['paths']['dataset_dir'], "test", "post")
-    output_dir = os.path.join("..", config['paths']['output_dir'], "sequential")
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    test_pre_dir = os.path.abspath(os.path.join(project_root, config['paths']['dataset_dir'], "test", "pre"))
+    test_post_dir = os.path.abspath(os.path.join(project_root, config['paths']['dataset_dir'], "test", "post"))
+    output_dir = os.path.abspath(os.path.join(project_root, config['paths']['output_dir'], "sequential"))
     
     os.makedirs(output_dir, exist_ok=True)
     
