@@ -22,12 +22,12 @@ def train_model():
     logger = setup_logger("HPC_Project")
     config = load_config()
     
-    # 1. Hardware Fallback Check
+    #Hardware Fallback Check
     use_gpu = config['execution'].get('use_gpu_if_available', True)
     device = torch.device("cuda" if torch.cuda.is_available() and use_gpu else "cpu")
     logger.info(f"Phase 6: Starting Deep Learning Training on device: {device}")
 
-    # 2. Initialize Data, Model, Loss, and Optimizer
+    #Initialize Data, Model, Loss, and Optimizer
     train_loader, val_loader = get_dataloaders(config)
     
     if len(train_loader.dataset) == 0:
@@ -35,20 +35,20 @@ def train_model():
         return
 
     model = SiameseCNN().to(device)
-    criterion = nn.BCEWithLogitsLoss() # Numerically stable Binary Cross Entropy with Logits
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    # 3. Mixed Precision Scaler (Only active if using CUDA)
+    #Mixed Precision Scaler (Only active if using CUDA)
     scaler = GradScaler(enabled=(device.type == 'cuda'))
     
-    num_epochs = 3 # Kept very small for local testing
+    num_epochs = 3
     best_val_loss = float('inf')
     models_dir = os.path.join("..", config['paths']['models_dir'])
     os.makedirs(models_dir, exist_ok=True)
     total_train_start = time.time()
     epoch_times = []
 
-    # 4. Training Loop
+    #Training Loop
     for epoch in range(num_epochs):
         epoch_start = time.time()
         model.train()
@@ -59,12 +59,12 @@ def train_model():
             
             optimizer.zero_grad()
             
-            # Forward pass with Automatic Mixed Precision
+            #Forward pass with AMP
             with autocast(enabled=(device.type == 'cuda')):
                 outputs = model(pre, post)
                 loss = criterion(outputs, mask)
             
-            # Backward pass and optimization
+            #Backward pass and optimization
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
@@ -74,7 +74,7 @@ def train_model():
             if batch_idx % 5 == 0:
                 logger.info(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx}/{len(train_loader)}], Loss: {loss.item():.4f}")
 
-        # 5. Validation Loop
+        #Validation
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
@@ -89,7 +89,7 @@ def train_model():
         epoch_times.append(epoch_elapsed)
         logger.info(f"--- Epoch {epoch+1} Summary: Avg Train Loss: {running_loss/len(train_loader):.4f}, Avg Val Loss: {avg_val_loss:.4f}, Epoch Time: {epoch_elapsed:.2f}s ---")
         
-        # Save Checkpoint
+        #Save
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             checkpoint_path = os.path.join(models_dir, "best_siamese_model.pth")

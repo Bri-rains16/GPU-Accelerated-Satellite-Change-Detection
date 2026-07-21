@@ -1,10 +1,10 @@
 import os
 import sys
 
-# 1. First, tell Python where to find the parent folder
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# 2. Then import standard libraries
+
 import glob
 import yaml
 import time
@@ -12,9 +12,9 @@ import numpy as np
 import logging
 import cv2
 
-# 3. Finally, import your project-specific modules
+
 from sklearn.model_selection import train_test_split
-# Note: Removed 'extract_patches' as we are implementing custom stride logic below
+
 from image_utils import load_image, normalize_image, save_patch 
 from utils.logger import setup_logger
 
@@ -44,10 +44,8 @@ def generate_mock_data(raw_dir, num_pairs=10, disaster_type="volcano"):
     os.makedirs(post_dir, exist_ok=True)
 
     for i in range(num_pairs):
-        # Create 1024x1024 mock images
         pre_img = np.random.randint(0, 255, (1024, 1024, 3), dtype=np.uint8)
         post_img = pre_img.copy()
-        # Add a "disaster" change block in the post image
         post_img[400:600, 400:600] = [255, 0, 0]
 
         cv2.imwrite(os.path.join(pre_dir, f"{disaster_type}_{i:04d}_pre_disaster.png"), pre_img)
@@ -64,17 +62,16 @@ def process_dataset():
     output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", output_dir_config))
     patch_size = config['dataset']['patch_size']
     
-    # Safely get stride from config, default to patch_size if missing (no overlap)
-    stride = config['dataset'].get('stride', patch_size) 
+    stride = config['dataset'].get('stride', patch_size)
     disaster_types = config['dataset'].get('disaster_types', ['volcano', 'hurricane'])
 
-    # Check if raw data exists; if not, generate mock data for testing
+
     if not os.path.exists(os.path.join(raw_dir, "pre_disaster")):
         generate_mock_data(raw_dir, disaster_type=disaster_types[0])
 
     create_dataset_directories(output_dir)
 
-    # Gather image paths dynamically based on disaster types in YAML
+
     pre_images = []
     post_images = []
     
@@ -90,7 +87,7 @@ def process_dataset():
         logger.error("Mismatch or missing image pairs in raw directory.")
         return
 
-    # Split dataset paths
+    #Split dataset paths
     train_pre, temp_pre, train_post, temp_post = train_test_split(
         pre_images, post_images, test_size=(1.0 - config['dataset']['train_split']), random_state=42
     )
@@ -115,13 +112,13 @@ def process_dataset():
         logger.info(f"Processing {split_name} split ({len(pre_list)} image pairs)...")
         for pre_path, post_path in zip(pre_list, post_list):
 
-            # Load and normalize
+
             pre_img = normalize_image(load_image(pre_path))
             post_img = normalize_image(load_image(post_path))
 
             img_height, img_width = pre_img.shape[:2]
 
-            # HPC Data Scaling: Overlapping Stride Patch Extraction
+            #Overlapping stride
             for y in range(0, img_height - patch_size + 1, stride):
                 for x in range(0, img_width - patch_size + 1, stride):
                     

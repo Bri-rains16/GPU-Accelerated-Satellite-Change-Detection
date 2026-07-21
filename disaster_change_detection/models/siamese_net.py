@@ -20,13 +20,12 @@ class DoubleConv(nn.Module):
 class SiameseCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        # Shared Encoder (Feature Extractor)
+        #Shared Encoder
         self.encoder1 = DoubleConv(3, 32)
         self.pool1 = nn.MaxPool2d(2)
         self.encoder2 = DoubleConv(32, 64)
-        
-        # Decoder (Processes combined features)
-        self.decoder = DoubleConv(128, 64)  # 64 + 64 concatenated
+        #Decoder
+        self.decoder = DoubleConv(128, 64)
         self.upconv = nn.ConvTranspose2d(64, 32, kernel_size=2, stride=2)
         self.final_conv = nn.Conv2d(32, 1, kernel_size=1)
 
@@ -37,17 +36,14 @@ class SiameseCNN(nn.Module):
         return x1, x3
 
     def forward(self, pre, post):
-        # Pass both images through the shared encoder
         pre_x1, pre_features = self.forward_branch(pre)
         post_x1, post_features = self.forward_branch(post)
         
-        # Concatenate features from both time steps
         combined = torch.cat([pre_features, post_features], dim=1)
-        
-        # Decode and classify
+
         d1 = self.decoder(combined)
         d2 = self.upconv(d1)
         
-        # Output logit map (safe for BCEWithLogitsLoss / Autocast)
+        #Output logit map (safe for BCEWithLogitsLoss)
         logits = self.final_conv(d2)
         return logits
