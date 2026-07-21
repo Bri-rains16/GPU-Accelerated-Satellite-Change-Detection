@@ -46,3 +46,47 @@ gpu-satellite-change-detection/
 ├── sequential/           # Baseline CPU change detection implementation
 ├── training/             # Deep learning training and validation scripts
 └── utils/                # Reusable helper functions (logging, I/O)
+
+## Execution Instructions (HPC Ramanujan Universe)
+
+This project is optimized for execution on an HPC cluster. Follow these steps to run the pipeline.
+
+### 1. Initial Setup
+Activate the environment and set up OpenCV library paths required for the C++ OpenMP and CUDA compilation:
+```bash
+cd ~/Desktop/GPU-Accelerated-Satellite-Change-Detection/disaster_change_detection
+source venv/bin/activate
+export PKG_CONFIG_PATH=~/opencv_cpp/lib/pkgconfig:~/opencv_cpp/lib64/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=~/opencv_cpp/lib:~/opencv_cpp/lib64:$LD_LIBRARY_PATH
+```
+
+### 2. End-to-End Pipeline
+To execute the entire pipeline (including C++ compilation, dataset prep, CPU baseline, GPU training, and evaluation), run the master shell script:
+```bash
+chmod +x run_hpc_pipeline.sh
+./run_hpc_pipeline.sh
+```
+
+### 3. Running Individual Phases
+You can also test specific components of the pipeline individually:
+
+*   **Dataset Preparation (OpenMP / Patch Extraction):**
+    ```bash
+    python preprocessing/dataset_builder.py
+    ```
+*   **Sequential Baseline CPU Inference:**
+    ```bash
+    python sequential/run_sequential.py
+    ```
+*   **Siamese CNN Training (A100 GPU):**
+    ```bash
+    python training/train.py
+    ```
+*   **Siamese CNN Inference & Throughput Testing:**
+    ```bash
+    python evaluation/inference.py
+    ```
+*   **Metrics Evaluation (Precision, Recall, F1-Score):**
+    ```bash
+    python evaluation/compute_metrics.py
+    ```
