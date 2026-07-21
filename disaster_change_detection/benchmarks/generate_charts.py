@@ -18,14 +18,11 @@ def plot_performance_metrics():
         logger.error("Benchmark data tracking logs missing in results directory.")
         return
 
-    # Load Data
     df_omp = pd.read_csv(omp_csv)
     df_cuda = pd.read_csv(cuda_csv)
 
-    # Initialize Visual Canvas Layout
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Plot 1: OpenMP Thread Scalability & Efficiency Curve
     ax1.plot(df_omp['Threads'], df_omp['Speedup'], marker='o', color='crimson', linewidth=2, label='Measured Speedup')
     ax1.plot(df_omp['Threads'], df_omp['Threads'], linestyle='--', color='gray', label='Ideal Scaling (Linear)')
     ax1.set_title('OpenMP CPU Multi-Core Scalability Profile', fontsize=12, fontweight='bold')
@@ -34,9 +31,7 @@ def plot_performance_metrics():
     ax1.grid(True, linestyle=':', alpha=0.6)
     ax1.legend()
 
-    # Plot 2: Architectural Pipeline Acceleration Comparison
     implementations = ['Sequential CPU Baseline', 'OpenMP (8 Threads)', 'CUDA GPU Custom Kernel']
-    # Extract times safely based on known structural data shapes
     execution_times = [
         df_cuda.loc[df_cuda['Implementation'] == 'Sequential Baseline', 'Execution_Time_sec'].values[0],
         df_omp.loc[df_omp['Threads'] == 8, 'Execution_Time_sec'].values[0],
@@ -49,7 +44,6 @@ def plot_performance_metrics():
     ax2.set_ylabel('Total Execution Latency (Seconds)', fontsize=10)
     ax2.grid(axis='y', linestyle=':', alpha=0.6)
 
-    # Annotate absolute values above the comparison bars
     for bar in bars:
         yval = bar.get_height()
         ax2.text(bar.get_x() + bar.get_width()/2.0, yval + 1, f"{yval:.2f}s", ha='center', va='bottom', fontweight='bold')

@@ -46,6 +46,7 @@ gpu-satellite-change-detection/
 ├── sequential/           # Baseline CPU change detection implementation
 ├── training/             # Deep learning training and validation scripts
 └── utils/                # Reusable helper functions (logging, I/O)
+```
 
 ## Execution Instructions (HPC Ramanujan Universe)
 

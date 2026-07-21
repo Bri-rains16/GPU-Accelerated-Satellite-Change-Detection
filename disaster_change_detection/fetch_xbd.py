@@ -6,7 +6,7 @@ import zipfile
 import tarfile
 import re
 
-# Setup Logger
+
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] %(levelname)s: %(message)s",
@@ -16,32 +16,20 @@ logger = logging.getLogger("xBD_Fetcher")
 
 def print_auth_instructions():
     instructions = """
-================================================================================
-                        xBD DATASET AUTHENTICATION INFO
-================================================================================
-To download the xBD dataset using this script, you have two primary methods:
+                        xBD DATASET DOWNLOAD INSTRUCTIONS (RU HPC)
+To fetch the raw satellite imagery for this Change Detection pipeline:
 
-METHOD 1: Kaggle API (Recommended for Automated Downloads)
-1. Ensure your 'kaggle.json' token is placed in the correct directory:
-   - Linux/macOS/RU HPC: ~/.kaggle/kaggle.json
-   - Windows: C:\\Users\\<username>\\.kaggle\\kaggle.json
-2. Secure the file permissions (Linux/macOS/RU HPC):
-   chmod 600 ~/.kaggle/kaggle.json
-3. Run this script:
-   python fetch_xbd.py --method kaggle --dataset qianlanzz/xbd-dataset
+METHOD 1: Kaggle API (Recommended)
+1. Place your 'kaggle.json' token at: ~/.kaggle/kaggle.json
+2. Run: python fetch_xbd.py --method kaggle --dataset qianlanzz/xbd-dataset
 
-METHOD 2: Manual Download (For xView2 Website / Pre-downloaded Archives)
-1. Download the tarballs/zips.
-2. Transfer them to the HPC.
-3. Run this script to extract and filter only volcano & hurricane images:
-   python fetch_xbd.py --method local --archive /path/to/downloaded_archive.tar.gz
+METHOD 2: Local Archive Extraction
+1. Transfer downloaded xBD archives to your HPC workspace.
+2. Run: python fetch_xbd.py --method local --archive /path/to/archive.tar.gz
 
-STORAGE WARNING:
-- The total raw download is 12-15 GB (filtered for volcano and hurricane).
-- Due to the overlapping stride (128) in dataset_builder.py, the generated patches
-  will expand to 30-40 GB.
-- Ensure the HPC account has at least 60 GB of storage quota available!
-================================================================================
+NOTE: 
+- The raw download is ~12-15GB (filtered for volcano/hurricane).
+- OpenMP patch extraction will expand this to ~35GB. Ensure sufficient HPC quota!
 """
     print(instructions)
 
@@ -62,10 +50,10 @@ def download_from_kaggle(dataset_name, download_dir):
         
     os.makedirs(download_dir, exist_ok=True)
     
-    # Download files using Kaggle API. It automatically handles resuming/retries.
+
     logger.info(f"Downloading Kaggle dataset '{dataset_name}' to {download_dir}...")
     try:
-        # Download as zip
+
         kaggle.api.dataset_download_files(dataset_name, path=download_dir, unzip=False, quiet=False)
         dataset_slug = dataset_name.split('/')[-1]
         archive_path = os.path.join(download_dir, f"{dataset_slug}.zip")
@@ -94,7 +82,7 @@ def filter_and_extract(archive_path, output_dir):
             for member in zip_ref.infolist():
                 filename = os.path.basename(member.filename)
                 
-                # Exclusively png images for volcano/hurricane pre/post disaster
+
                 if pattern.search(filename):
                     if filename.endswith('_pre_disaster.png'):
                         target_path = os.path.join(pre_dir, filename)

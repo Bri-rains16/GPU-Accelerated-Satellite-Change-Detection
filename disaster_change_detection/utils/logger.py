@@ -9,9 +9,7 @@ def setup_logger(name="HPC_Logger", log_level=logging.INFO):
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
 
-    # Prevent adding multiple handlers if logger already exists
     if not logger.handlers:
-        # Console Handler
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(log_level)
         console_formatter = logging.Formatter(

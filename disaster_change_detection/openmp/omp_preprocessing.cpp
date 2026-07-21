@@ -11,16 +11,16 @@ namespace fs = std::filesystem;
 
 // Function to simulate the preprocessing pipeline on a single image
 void process_image(const string& input_path, const string& output_dir) {
-    // 1. Image Loading
+
     cv::Mat img = cv::imread(input_path, cv::IMREAD_COLOR);
     if (img.empty()) return;
 
-    // 2. Normalization & Resizing (Simulated intensive task)
+
     cv::Mat resized, normalized;
     cv::resize(img, resized, cv::Size(1024, 1024));
     resized.convertTo(normalized, CV_32F, 1.0 / 255.0);
 
-    // 3. Patch Extraction (Extracting 4 patches as a proxy)
+
     int patch_size = 256;
     int patch_id = 0;
     string base_name = fs::path(input_path).stem().string();
@@ -65,10 +65,7 @@ int main(int argc, char** argv) {
 
     auto start_time = chrono::high_resolution_clock::now();
 
-    // ==========================================
-    // OPENMP PARALLEL FOR LOOP
     // Distributes the image list across CPU cores
-    // ==========================================
     #pragma omp parallel for schedule(dynamic)
     for (size_t i = 0; i < image_files.size(); ++i) {
         process_image(image_files[i], output_dir);

@@ -22,14 +22,14 @@ def run_openmp_benchmark():
     threads_to_test = [1, 2, 4, 8]
     results = []
 
-    # Check if the C++ binary is compiled
+
     if not os.path.exists(binary_path):
         logger.warning(f"C++ binary '{binary_path}' not found.")
         logger.info("Local Development Mode: The OpenMP C++ source code is ready for HPC compilation.")
         logger.info("Simulating OpenMP benchmark metrics for pipeline continuity...")
         
-        # Simulate benchmark data for local testing based on typical HPC scaling
-        base_time = 45.0  # Simulated sequential time
+
+        base_time = 45.0
         for t in threads_to_test:
             exec_time = base_time / (t * 0.85 if t > 1 else 1) # 85% parallel efficiency
             speedup = base_time / exec_time
@@ -37,7 +37,7 @@ def run_openmp_benchmark():
             results.append({"Threads": t, "Execution_Time_sec": round(exec_time, 4), 
                             "Speedup": round(speedup, 4), "Efficiency": round(efficiency, 4)})
     else:
-        # Actually execute the OpenMP binary if compiled
+
         for threads in threads_to_test:
             logger.info(f"Executing OpenMP pipeline with {threads} threads...")
             start = time.time()
@@ -54,13 +54,13 @@ def run_openmp_benchmark():
                 
             results.append({"Threads": threads, "Execution_Time_sec": exec_time})
             
-        # Calculate standard HPC metrics
+
         base_time = results[0]["Execution_Time_sec"]
         for res in results:
             res["Speedup"] = base_time / res["Execution_Time_sec"]
             res["Efficiency"] = res["Speedup"] / res["Threads"]
 
-    # Save Results
+
     df = pd.DataFrame(results)
     df.to_csv(results_file, index=False)
     logger.info(f"OpenMP benchmarking complete. Results saved to {results_file}")

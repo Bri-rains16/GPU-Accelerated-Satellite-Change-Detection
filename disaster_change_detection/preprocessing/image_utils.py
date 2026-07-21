@@ -12,7 +12,7 @@ def load_image(file_path):
     if img is None:
         logger.error(f"Failed to load image: {file_path}")
         raise FileNotFoundError(f"Image not found at {file_path}")
-    # Convert BGR to RGB
+    #Convert BGR to RGB
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 
@@ -39,7 +39,7 @@ def extract_patches(image, patch_size=256):
 
 def save_patch(patch, output_path):
     """Saves a normalized patch back to an image file."""
-    # Convert back to [0, 255] and RGB to BGR for OpenCV saving
+    #Convert back to [0, 255] and RGB to BGR for OpenCV saving
     patch_to_save = (patch * 255.0).astype(np.uint8)
     patch_to_save = cv2.cvtColor(patch_to_save, cv2.COLOR_RGB2BGR)
     cv2.imwrite(output_path, patch_to_save)

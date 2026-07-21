@@ -4,22 +4,21 @@ project:
   institution: "Jaypee Institute of Information Technology"
 
 paths:
-  dataset_dir: "./datasets/xBD_full" # Renamed to reflect the scaled-up dataset
-  output_dir: "./outputs"
+  dataset_dir: "./datasets/xBD_full"
   models_dir: "./models/saved"
   results_dir: "./results"
 
 execution:
   mode: "deep_learning" 
   use_gpu_if_available: true
-  num_workers: 8     # Scaled up to utilize RU HPC multi-core nodes
-  batch_size: 64     # Added to keep the A100 GPUs fully fed with data
-  num_epochs: 50     # Added for a full, accurate training cycle on the cluster
+  num_workers: 8   
+  batch_size: 64     
+  num_epochs: 50    
 
 dataset:
-  disaster_types: ["volcano", "hurricane"] # Updated to your newly chosen targets
+  disaster_types: ["volcano", "hurricane"] 
   patch_size: 256
-  stride: 128        # Added for overlapping patch extraction (4x data scaling)
+  stride: 128      
   train_split: 0.7
   val_split: 0.15
   test_split: 0.15
