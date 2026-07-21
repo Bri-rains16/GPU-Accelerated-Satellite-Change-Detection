@@ -9,24 +9,25 @@ def load_config(config_path="config/config.yaml"):
         return yaml.safe_load(file)
 
 def main():
-
+    # 1. Initialize Logger
     logger = setup_logger()
     logger.info("Initializing GPU-Accelerated Satellite Image Change Detection Pipeline...")
 
+    # 2. Load Configuration
     config = load_config()
     logger.info(f"Loaded configuration for project: {config['project']['name']}")
 
-    #Hardware Availability
+    # 3. Check Hardware Availability
     device = torch.device("cuda" if torch.cuda.is_available() and config['execution']['use_gpu_if_available'] else "cpu")
     logger.info(f"Primary Deep Learning Execution Device determined as: {device}")
     
     if device.type == 'cpu':
         logger.warning("CUDA is not available locally. Development will proceed on CPU. CUDA code will still be written for future HPC compilation.")
 
-    #Pipeline Execution Controller
+    # 4. Pipeline Execution Controller
     if config['execution']['run_preprocessing']:
         logger.info("Phase 2 Placeholder: Executing Preprocessing Pipeline...")
-        #preprocessing.run(config)
+        # preprocessing.run(config)
         
     if config['execution']['run_sequential']:
         logger.info("Phase 3 Placeholder: Executing Sequential Baseline...")

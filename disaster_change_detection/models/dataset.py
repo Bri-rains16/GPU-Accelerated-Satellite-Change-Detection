@@ -19,18 +19,18 @@ class ChangeDetectionDataset(Dataset):
         return len(self.pre_images)
         
     def __getitem__(self, idx):
-
+        # Load images
         pre_img = cv2.imread(self.pre_images[idx], cv2.IMREAD_COLOR)
         post_img = cv2.imread(self.post_images[idx], cv2.IMREAD_COLOR)
         
         pre_img = cv2.cvtColor(pre_img, cv2.COLOR_BGR2RGB)
         post_img = cv2.cvtColor(post_img, cv2.COLOR_BGR2RGB)
         
-        #Normalize to [0, 1] and convert to (C, H, W)
+        # Normalize to [0, 1] and convert to PyTorch shape (Channels, Height, Width)
         pre_tensor = torch.from_numpy(pre_img.astype(np.float32) / 255.0).permute(2, 0, 1)
         post_tensor = torch.from_numpy(post_img.astype(np.float32) / 255.0).permute(2, 0, 1)
         
-        #Generate a pseudo-ground truth mask for local training (Absolute difference threshold)
+        # Generate a pseudo-ground truth mask for local training (Absolute difference threshold)
         diff = cv2.absdiff(cv2.cvtColor(pre_img, cv2.COLOR_RGB2GRAY), 
                            cv2.cvtColor(post_img, cv2.COLOR_RGB2GRAY))
         _, thresh = cv2.threshold(diff, 30, 255, cv2.THRESH_BINARY)
@@ -45,13 +45,13 @@ def get_dataloaders(config):
     train_dataset = ChangeDetectionDataset(dataset_dir, split='train')
     val_dataset = ChangeDetectionDataset(dataset_dir, split='val')
     
-    #GPU-optimized DataLoader with parallel prefetching
+    # Multi-worker parallel data loading with GPU-optimized prefetching
     num_workers = config['execution'].get('num_workers', 0)
     batch_size = config['execution'].get('batch_size', 8)
 
-    #pin_memory: faster CPU->GPU DMA transfers
-    #prefetch_factor: pre-loads batches ahead so GPU never waits
-    #persistent_workers: avoids respawning workers between epochs
+    # pin_memory=True: locks CPU RAM pages so CUDA DMA transfers are faster (no copy step)
+    # prefetch_factor=2: each worker pre-loads 2 batches ahead so GPU never waits for data
+    # persistent_workers=True: keeps worker processes alive between epochs (avoids respawn overhead)
     use_pin_memory = torch.cuda.is_available()
 
     train_loader = DataLoader(
@@ -67,4 +67,4 @@ def get_dataloaders(config):
         persistent_workers=(num_workers > 0)
     )
     
-    return train_loader, val_loader
+    return train_loader, val_loader

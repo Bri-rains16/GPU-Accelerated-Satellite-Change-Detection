@@ -27,20 +27,20 @@ def calculate_accuracy_metrics():
     total_fn = 0
 
     for s_path, d_path in zip(seq_maps, dl_maps):
-        #Load maps as grayscale
+        # Load maps as binary grayscale matrices
         s_img = cv2.imread(s_path, cv2.IMREAD_GRAYSCALE)
         d_img = cv2.imread(d_path, cv2.IMREAD_GRAYSCALE)
 
-
+        # Convert to strict boolean masks
         seq_mask = s_img > 127
         dl_mask = d_img > 127
 
-        #Confusion Matrix Overlaps
+        # Calculate Confusion Matrix Overlaps
         total_tp += np.sum(logical_and := (dl_mask & seq_mask))
         total_fp += np.sum(dl_mask & ~seq_mask)
         total_fn += np.sum(~dl_mask & seq_mask)
 
-    #ML Performance Metrics
+    # Calculate Standard ML Performance Metrics
     precision = total_tp / (total_tp + total_fp) if (total_tp + total_fp) > 0 else 0
     recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else 0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
